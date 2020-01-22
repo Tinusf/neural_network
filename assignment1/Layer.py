@@ -2,12 +2,17 @@ import numpy as np
 
 
 class Layer:
-    def __init__(self, weights, activations):
+    def __init__(self, weights, activations, bias):
         self.weights = weights
         self.activations = activations
+        self.bias = bias
 
     def get_output(self):
+        # TODO: Remember to change it for the first layer without activations.
         return np.transpose(self.weights).dot(activations)
+
+    def activation(self):
+        pass
 
 
 if __name__ == '__main__':
