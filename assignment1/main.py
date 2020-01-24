@@ -1,5 +1,5 @@
-from Config import Config
-from Layer import Layer
+from config import Config
+from layer import Layer
 import numpy as np
 
 
