@@ -16,10 +16,11 @@ def main():
 
     X_data = np.array([[1, 1, 1],
                        [0, 1, 1],
-                       [1, 0, 0],
+                       [1, 1, 0],
                        [0, 0, 1]])
-    y_data = np.array([1, 1, 3, 2])
-    network = Network(X_data, y_data, [3, 2], "L2", "softmax")
+    y_data = np.array([1, 2, 1, 2])
+    biases = [0.2, 0.2]
+    network = Network(X_data, y_data, biases, [3, 2], "L2", "relu")
 
     network.train()
     # print(network.predict(np.array([1,1])))

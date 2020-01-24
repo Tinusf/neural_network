@@ -4,8 +4,11 @@ from scipy.special import softmax
 
 class Layer:
     def __init__(self, w, x, b, loss, activation_func):
+        # This is the weights in to this layer.
         self.w = w
+        # This is the activations in to this layer.
         self.x = x
+        # Biases for this layer.
         self.b = b
         self.loss = loss
         self.activation_func = activation_func

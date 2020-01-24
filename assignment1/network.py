@@ -6,7 +6,7 @@ np.random.seed(42)
 
 
 class Network:
-    def __init__(self, X_data, y_data, number_of_nodes, loss, activation_func):
+    def __init__(self, X_data, y_data, biases, number_of_nodes, loss, activation_func):
         """
         :param X_data:
         :param y_data:
@@ -26,8 +26,7 @@ class Network:
               "")
 
         # print(weights)
-        bias = [0.2, 0.2]
-        input_layer = Layer(self.weights, X_data, bias, loss, activation_func)
+        input_layer = Layer(self.weights, X_data, biases, loss, activation_func)
 
         self.layers = [input_layer]
 
@@ -38,11 +37,19 @@ class Network:
         if self.loss == "L2":
             # Need to be the sum of all
             loss = (target_y - activation) ** 2
+            # TODO: HER FUCKER JEG OPP!!!. HER MÅ MAN SUMME OVER!!!!
+            # den her https://www.youtube.com/watch?time_continue=2&v=tIeHLnjs5U8&feature
+            # =emb_title på 9:05
             print("loss", loss)
+            print(target_y)
             z = self.layers[0].get_z(x)
-            gradient = (activation - target_y) * learning_rate * x * activations.relu(z, True)
+            gradient = np.sum([(activation[i] - target_y) * learning_rate * x *
+                            activations.relu(z[i], derivate=True) for i in range(len(activation))])
+            # gradient = (activation - target_y) * learning_rate * x * activations.relu(z, derivate=True)
+
             self.layers[0].w -= gradient
-            self.layers[0].b -= (activation - target_y) * learning_rate * activations.relu(z, True)
+            self.layers[0].b -= np.sum([(activation[i] - target_y) * learning_rate *
+                                        activations.relu(z[i], True) for i in range(len(activation))])
         elif self.loss == "cross_entropy":
             pass
 
