@@ -4,8 +4,6 @@ import numpy as np
 from network import Network
 np.random.seed(42)
 
-# from scipy.special import softmax
-
 # It was suggested to use this.
 # from configparser import ConfigParser
 
@@ -16,12 +14,12 @@ def main():
 
     # Input layer
 
-    X_data = np.array([[1, 1],
-                       [0, 1],
-                       [1, 0],
-                       [0, 0]])
-    y_data = np.array([1, 1, 1, 0])
-    network = Network(X_data, y_data)
+    X_data = np.array([[1, 1, 1],
+                       [0, 1, 1],
+                       [1, 0, 0],
+                       [0, 0, 1]])
+    y_data = np.array([1, 1, 3, 2])
+    network = Network(X_data, y_data, [3, 2], "L2", "softmax")
 
     network.train()
     # print(network.predict(np.array([1,1])))

@@ -6,14 +6,28 @@ np.random.seed(42)
 
 
 class Network:
-    def __init__(self, X_data, y_data):
+    def __init__(self, X_data, y_data, number_of_nodes, loss, activation_func):
+        """
+        :param X_data:
+        :param y_data:
+        :param number_of_nodes: Can for example be: [2, 1]
+        Then the input layer consists of 2 nodes and there is 1 output node.
+        """
         self.X_data = X_data
         self.y_data = y_data
-        self.weights = np.array(np.random.normal(size=2))
+        self.loss = loss
+        if number_of_nodes[-1] == 1:
+            # Only one output node.
+            self.weights = np.random.normal(size=number_of_nodes[0])
+        else:
+            self.weights = np.random.normal(size=number_of_nodes)
+        print(self.weights)
+        print(""
+              "")
 
         # print(weights)
-        bias = 0.2
-        input_layer = Layer(self.weights, X_data, bias, "L2", "relu")
+        bias = [0.2, 0.2]
+        input_layer = Layer(self.weights, X_data, bias, loss, activation_func)
 
         self.layers = [input_layer]
 
@@ -21,13 +35,16 @@ class Network:
         return self.layers[0].forward(x)
 
     def back_propagation(self, activation, x, target_y, learning_rate=0.05):
-        # Need to be the sum of all
-        loss = (target_y - activation) ** 2
-        print("loss", loss)
-        z = self.layers[0].get_z(x)
-        gradient = (activation - target_y) * x * learning_rate * activations.relu(z, True)
-        self.layers[0].w -= gradient
-        self.layers[0].b -= (activation - target_y) * learning_rate * activations.relu(z, True)
+        if self.loss == "L2":
+            # Need to be the sum of all
+            loss = (target_y - activation) ** 2
+            print("loss", loss)
+            z = self.layers[0].get_z(x)
+            gradient = (activation - target_y) * learning_rate * x * activations.relu(z, True)
+            self.layers[0].w -= gradient
+            self.layers[0].b -= (activation - target_y) * learning_rate * activations.relu(z, True)
+        elif self.loss == "cross_entropy":
+            pass
 
     def train(self):
         for epoch in range(10000):
@@ -36,17 +53,9 @@ class Network:
                 y = self.y_data[i]
 
                 activations = self.feed_forward(x)
-                # print(activations)
+                print(activations)
                 self.back_propagation(activations, x, y)
-        print("siste")
-        print("her:")
-        print(self.layers[0].forward(np.array([0, 0])))
-        print(self.layers[0].forward(np.array([1, 0])))
-        print(self.layers[0].forward(np.array([0, 1])))
-        print(self.layers[0].forward(np.array([1, 1])))
-        print("done")
-        print(self.weights)
-        print(self.layers[0].b)
+
         pass
 
     def predict(self, input):

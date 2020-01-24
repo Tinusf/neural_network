@@ -1,6 +1,6 @@
 import numpy as np
 import activations
-
+from scipy.special import softmax
 
 class Layer:
     def __init__(self, w, x, b, loss, activation_func):
@@ -12,6 +12,8 @@ class Layer:
 
     def forward(self, x):
         # TODO: Remember to change it for the first layer without activations.
+        print(np.transpose(self.w))
+        print(x)
         value = np.transpose(self.w).dot(x) + self.b
         return self.activation(value)
 
@@ -21,6 +23,8 @@ class Layer:
     def activation(self, value):
         if self.activation_func == "relu":
             return activations.relu(value)
+        if self.activation_func == "softmax":
+            return softmax(value)
 
 
 
