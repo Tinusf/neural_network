@@ -1,23 +1,43 @@
 from config import Config
 from layer import Layer
 import numpy as np
+from network import Network
+np.random.seed(42)
+
+# from scipy.special import softmax
+
+# It was suggested to use this.
+# from configparser import ConfigParser
+
 
 
 def main():
     config = Config("config.txt")
 
     # Input layer
-    activations = None
-    weights = np.array([0.2, 0.2])
-    bias = 0.2
-    input_layer = Layer(weights, activations, bias)
 
-    # Output layer
-    activations = np.array([])
+    X_data = np.array([[1, 1],
+                       [0, 1],
+                       [1, 0],
+                       [0, 0]])
+    y_data = np.array([1, 1, 1, 0])
+    network = Network(X_data, y_data)
+
+    network.train()
+    # print(network.predict(np.array([1,1])))
+
+    # activations = np.array([1, 1])
+    # weights = np.random.normal(size=2)
+    # print(weights)
+    # bias = 0.2
+    # input_layer = Layer(weights, activations, bias, "L2", "relu")
+    #
+    # print(input_layer.forward())
+    # # Output layer
+    # activations = np.array([])
 
     # Data. Simple AND example:
-    data_X = np.array([[1, 1], [0, 1], [1, 0], [0, 0]])
-    data_y = np.array([1, 0, 0, 0])
+
 
 
 if __name__ == '__main__':
