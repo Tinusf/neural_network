@@ -6,50 +6,53 @@ np.random.seed(42)
 
 
 class Network:
-    def __init__(self, X_data, y_data, biases, number_of_nodes, loss, activation_func):
+    def __init__(self, X_data, y_data, number_of_nodes, loss, activation_func):
         """
         :param X_data:
         :param y_data:
         :param number_of_nodes: Can for example be: [2, 1]
         Then the input layer consists of 2 nodes and there is 1 output node.
+        This would be modelled by using one layer in this program.
         """
         self.X_data = X_data
         self.y_data = y_data
         self.loss = loss
-        if number_of_nodes[-1] == 1:
-            # Only one output node.
-            self.weights = np.random.normal(size=number_of_nodes[0])
-        else:
-            self.weights = np.random.normal(size=number_of_nodes)
-        print(self.weights)
-        print(""
-              "")
+        self.activation_func = activation_func
+        self.layers = []
 
-        # print(weights)
-        input_layer = Layer(self.weights, X_data, biases, loss, activation_func)
+        for i in range(len(number_of_nodes) - 1):
 
-        self.layers = [input_layer]
+            weights = np.random.normal(size=number_of_nodes[i:i+1])
+            biases = np.random.normal(size=number_of_nodes[i + 1])
+
+            layer = Layer(weights, X_data, biases, loss, activation_func)
+            self.layers.append(layer)
 
     def feed_forward(self, x):
-        return self.layers[0].forward(x)
+        for layer in self.layers:
+            x = layer.forward(x)
+        return x
 
     def back_propagation(self, activation, x, target_y, learning_rate=0.05):
         if self.loss == "L2":
-            # Need to be the sum of all
-            loss = (target_y - activation) ** 2
-            # TODO: HER FUCKER JEG OPP!!!. HER MÅ MAN SUMME OVER!!!!
-            # den her https://www.youtube.com/watch?time_continue=2&v=tIeHLnjs5U8&feature
-            # =emb_title på 9:05
-            print("loss", loss)
-            print(target_y)
-            z = self.layers[0].get_z(x)
-            gradient = np.sum([(activation[i] - target_y) * learning_rate * x *
-                            activations.relu(z[i], derivate=True) for i in range(len(activation))])
-            # gradient = (activation - target_y) * learning_rate * x * activations.relu(z, derivate=True)
+            for layer in reversed(self.layers):
+                # Need to be the sum of all
+                loss = (target_y - activation) ** 2
+                # TODO: HER FUCKER JEG OPP!!!. HER MÅ MAN SUMME OVER!!!!
+                # den her https://www.youtube.com/watch?time_continue=2&v=tIeHLnjs5U8&feature
+                # =emb_title på 9:05
+                print("loss", loss)
+                print(target_y)
+                z = layer.get_z(x)
+                gradient = np.sum([(activation[i] - target_y) * learning_rate * x *
+                                   activations.relu(z[i], derivate=True) for i in
+                                   range(len(activation))])
+                # gradient = (activation - target_y) * learning_rate * x * activations.relu(z, derivate=True)
 
-            self.layers[0].w -= gradient
-            self.layers[0].b -= np.sum([(activation[i] - target_y) * learning_rate *
-                                        activations.relu(z[i], True) for i in range(len(activation))])
+                layer.w -= gradient
+                layer.b -= np.sum([(activation[i] - target_y) * learning_rate *
+                                            activations.relu(z[i], True) for i in
+                                            range(len(activation))])
         elif self.loss == "cross_entropy":
             pass
 
@@ -58,12 +61,8 @@ class Network:
             for i in range(len(self.X_data)):
                 x = self.X_data[i]
                 y = self.y_data[i]
-
                 activations = self.feed_forward(x)
-                print(activations)
                 self.back_propagation(activations, x, y)
 
-        pass
-
-    def predict(self, input):
-        return np.max(0, input.dot(self.weights))
+    # def predict(self, input):
+        # return np.max(0, input.dot(self.weights))
