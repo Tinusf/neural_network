@@ -6,7 +6,7 @@ np.random.seed(42)
 
 
 class Network:
-    def __init__(self, X_data, y_data, number_of_nodes, loss, activation_func):
+    def __init__(self, X_data, y_data, number_of_nodes, loss, activation_functions):
         """
         :param X_data:
         :param y_data:
@@ -17,7 +17,6 @@ class Network:
         self.X_data = X_data
         self.y_data = y_data
         self.loss = loss
-        self.activation_func = activation_func
         self.layers = []
 
         for i in range(len(number_of_nodes) - 1):
@@ -25,7 +24,7 @@ class Network:
             weights = np.random.normal(size=number_of_nodes[i:i+1])
             biases = np.random.normal(size=number_of_nodes[i + 1])
 
-            layer = Layer(weights, X_data, biases, loss, activation_func)
+            layer = Layer(weights, X_data, biases, loss, activation_functions[i])
             self.layers.append(layer)
 
     def feed_forward(self, x):
@@ -53,6 +52,8 @@ class Network:
                 layer.b -= np.sum([(activation[i] - target_y) * learning_rate *
                                             activations.relu(z[i], True) for i in
                                             range(len(activation))])
+                # layer.b -= (activation - target_y) * learning_rate *activations.relu(z, True)
+
         elif self.loss == "cross_entropy":
             pass
 
