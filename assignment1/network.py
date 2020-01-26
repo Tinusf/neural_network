@@ -55,7 +55,8 @@ class Network:
                 # layer.b -= (activation - target_y) * learning_rate *activations.relu(z, True)
 
         elif self.loss == "cross_entropy":
-            pass
+            for layer in reversed(self.layers):
+                pass
 
     def train(self):
         for epoch in range(10000):

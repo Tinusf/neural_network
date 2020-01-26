@@ -18,8 +18,8 @@ def main():
                        [1, 0],
                        [0, 0]])
     y_data = np.array([1, 0, 0, 0])
-    activation_functions = ["relu", "relu"]
-    network = Network(X_data, y_data, [2, 2, 1], "L2", activation_functions)
+    activation_functions = ["softmax", "softmax"]
+    network = Network(X_data, y_data, [2, 2, 1], "cross_entropy", activation_functions)
 
     network.train()
 
