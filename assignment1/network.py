@@ -20,8 +20,7 @@ class Network:
         self.layers = []
 
         for i in range(len(number_of_nodes) - 1):
-
-            weights = np.random.normal(size=number_of_nodes[i:i+1])
+            weights = np.random.normal(size=number_of_nodes[i:i + 1])
             biases = np.random.normal(size=number_of_nodes[i + 1])
 
             layer = Layer(weights, X_data, biases, loss, activation_functions[i])
@@ -35,24 +34,15 @@ class Network:
     def back_propagation(self, activation, x, target_y, learning_rate=0.05):
         if self.loss == "L2":
             for layer in reversed(self.layers):
-                # Need to be the sum of all
                 loss = (target_y - activation) ** 2
-                # TODO: HER FUCKER JEG OPP!!!. HER MÅ MAN SUMME OVER!!!!
-                # den her https://www.youtube.com/watch?time_continue=2&v=tIeHLnjs5U8&feature
-                # =emb_title på 9:05
                 print("loss", loss)
                 print(target_y)
                 z = layer.get_z(x)
-                gradient = np.sum([(activation[i] - target_y) * learning_rate * x *
-                                   activations.relu(z[i], derivate=True) for i in
-                                   range(len(activation))])
-                # gradient = (activation - target_y) * learning_rate * x * activations.relu(z, derivate=True)
+                gradient = (activation - target_y) * learning_rate * x * activations.relu(z,
+                                                                                          derivate=True)
 
                 layer.w -= gradient
-                layer.b -= np.sum([(activation[i] - target_y) * learning_rate *
-                                            activations.relu(z[i], True) for i in
-                                            range(len(activation))])
-                # layer.b -= (activation - target_y) * learning_rate *activations.relu(z, True)
+                layer.b -= (activation - target_y) * learning_rate * activations.relu(z, True)
 
         elif self.loss == "cross_entropy":
             for layer in reversed(self.layers):
@@ -67,4 +57,4 @@ class Network:
                 self.back_propagation(activations, x, y)
 
     # def predict(self, input):
-        # return np.max(0, input.dot(self.weights))
+    # return np.max(0, input.dot(self.weights))
