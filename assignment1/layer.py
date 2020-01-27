@@ -1,12 +1,12 @@
 import numpy as np
-import activations
+import activation_funcs
 from scipy.special import softmax
 
 class Layer:
     def __init__(self, w, x, b, loss, activation_func):
         # This is the weights in to this layer.
         self.w = w
-        # This is the activations in to this layer.
+        # This is the activation_funcs in to this layer.
         self.x = x
         # Biases for this layer.
         self.b = b
@@ -23,7 +23,7 @@ class Layer:
 
     def activation(self, value):
         if self.activation_func == "relu":
-            return activations.relu(value)
+            return activation_funcs.relu(value)
         if self.activation_func == "softmax":
             return softmax(value)
 
@@ -33,6 +33,6 @@ class Layer:
 
 if __name__ == '__main__':
     weights = np.array([[1, 2], [2, 3]])
-    activations = np.array([0.2, -0.2])
-    layer = Layer(weights, activations)
+    activation_funcs = np.array([0.2, -0.2])
+    layer = Layer(weights, activation_funcs)
     print(layer.get_output())
