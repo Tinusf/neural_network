@@ -34,34 +34,40 @@ class Network:
             activations.append(x)
         return activations
 
+    def get_loss(self, layer, target_y, estimate_y, derivate=False):
+        if layer.loss == "L2":
+            loss = (target_y - estimate_y) ** 2
+            print("loss", loss)
+            if derivate:
+                return estimate_y - target_y
+        if layer.loss == "cross_entropy":
+            pass
+
+    def get_activations_func(self, layer, z, derivate=False):
+        if layer.activation_func == "relu":
+            return activation_funcs.relu(z, derivate=derivate)
+        elif layer.activation_func == "softmax":
+            pass
+
+
     def back_propagation(self, activations, target_y, learning_rate=0.01):
-        if self.loss == "L2":
-            # last_layer = self.layers[-1]
-            # z_array = last_layer.get_z(x)
-            # last_jacobian = np.array([activation_funcs.relu(z, True) for z in z_array])
-            last_jacobian = None
-            for layer_i in range(len(self.layers) - 1, -1, -1):
-                layer = self.layers[layer_i]
-                z = layer.get_z(activations[layer_i])
-                if layer_i == len(self.layers) - 1:
-                    # This is the last layer
-                    last_jacobian = (activations[layer_i + 1] - target_y).dot(
-                        activation_funcs.relu(z, derivate=True))
+        prev_gradient = None
+        for layer_i in range(len(self.layers) - 1, -1, -1):
+            layer = self.layers[layer_i]
+            z = layer.get_z(activations[layer_i])
+            if layer_i == len(self.layers) - 1:
+                # This is the last layer
+                prev_gradient = (self.get_loss(layer, target_y, activations[-1], derivate=True)
+                                 ).dot(self.get_activations_func(layer, z, derivate=True))
 
-                else:
-                    next_layer = self.layers[layer_i + 1]
-                    # z = layer.get_z(x)
-                    last_jacobian = np.transpose(next_layer.w).dot(last_jacobian).dot(
-                        (activation_funcs.relu(z, derivate=True)))
+            else:
+                next_layer = self.layers[layer_i + 1]
+                # z = layer.get_z(x)
+                prev_gradient = np.transpose(next_layer.w).dot(prev_gradient).dot(
+                    (self.get_activations_func(layer, z, derivate=True)))
 
-                loss = (target_y - activations[-1]) ** 2
-                print("loss", loss)
-                layer.b -= learning_rate * last_jacobian
-                layer.w -= learning_rate * activations[layer_i].dot(last_jacobian)
-
-        elif self.loss == "cross_entropy":
-            for layer in reversed(self.layers):
-                pass
+            layer.b -= learning_rate * prev_gradient
+            layer.w -= learning_rate * activations[layer_i].dot(prev_gradient)
 
     def train(self):
         for epoch in range(10000):
