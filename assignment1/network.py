@@ -20,12 +20,12 @@ class Network:
         self.layers = []
 
         for i in range(len(number_of_nodes) - 1):
-            weights = np.random.normal(size=number_of_nodes[i:i + 1])
+            weights = np.random.normal(size=number_of_nodes[i:i + 2])
             # TODO: figure out which is correct.
             biases = np.random.normal(size=number_of_nodes[i + 1])
-
             layer = Layer(weights, X_data, biases, loss, activation_functions[i])
             self.layers.append(layer)
+        print("lol")
 
     def feed_forward(self, x):
         activations = [x]
@@ -51,23 +51,28 @@ class Network:
 
 
     def back_propagation(self, activations, target_y, learning_rate=0.01):
-        prev_gradient = None
+        last_error = None
         for layer_i in range(len(self.layers) - 1, -1, -1):
             layer = self.layers[layer_i]
             z = layer.get_z(activations[layer_i])
             if layer_i == len(self.layers) - 1:
                 # This is the last layer
-                prev_gradient = (self.get_loss(layer, target_y, activations[-1], derivate=True)
-                                 ).dot(self.get_activations_func(layer, z, derivate=True))
+                last_error = np.array((self.get_loss(layer, target_y, activations[-1],
+                                                  derivate=True)))\
+                 * np.array((self.get_activations_func(layer, z, derivate=True)))
 
             else:
                 next_layer = self.layers[layer_i + 1]
                 # z = layer.get_z(x)
-                prev_gradient = np.transpose(next_layer.w).dot(prev_gradient).dot(
-                    (self.get_activations_func(layer, z, derivate=True)))
+                last_error = np.transpose(next_layer.w).dot(last_error) * (
+                    self.get_activations_func(layer, z, derivate=True))
 
-            layer.b -= learning_rate * prev_gradient
-            layer.w -= learning_rate * activations[layer_i].dot(prev_gradient)
+            layer.b -= learning_rate * last_error
+            # for i in range(len(layer.w)):
+            #     layer.w[i] -= learning_rate * np.array(activations[layer_i][i]).dot(last_error)
+                # np.array(last_error).dot(np.transpose()
+            layer.w -= learning_rate * np.array(last_error).dot(np.transpose(activations[
+                                                                                    layer_i]))
 
     def train(self):
         for epoch in range(10000):

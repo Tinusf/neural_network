@@ -15,8 +15,8 @@ class Layer:
 
     def forward(self, x):
         # TODO: Remember to change it for the first layer without activations.
-        value = self.get_z(x)
-        return self.activation(value)
+        z = self.get_z(x)
+        return self.activation(z)
 
     def get_z(self, x):
         return np.transpose(self.w).dot(x) + self.b

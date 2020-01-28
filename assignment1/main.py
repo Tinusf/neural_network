@@ -18,7 +18,7 @@ def main():
                        [1, 0, 1],
                        [0, 0, 0]])
     y_data = np.array([1, 0, 0, 0])
-    activation_functions = ["relu", "relu", "relu"]
+    activation_functions = ["relu", "relu"]
     network = Network(X_data, y_data, [3, 2, 1], "L2", activation_functions)
 
     network.train()
