@@ -12,4 +12,7 @@ def relu(value, derivate=False):
         return np.maximum(0, value)
 
 
-
+def tanh(x, derivate=False):
+    if derivate:
+        return (np.cosh(x) ** 2 - np.sinh(x) ** 2) / np.cosh(x) ** 2
+    return np.tanh(x)

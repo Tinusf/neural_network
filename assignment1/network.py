@@ -20,19 +20,22 @@ class Network:
         self.layers = []
 
         for i in range(len(number_of_nodes) - 1):
-            weights = np.random.normal(size=number_of_nodes[i:i + 2])
+            weights = np.random.normal(size=number_of_nodes[i:i + 2]).T
             # TODO: figure out which is correct.
-            biases = np.random.normal(size=number_of_nodes[i + 1])
+            biases = np.random.normal(size=(number_of_nodes[i + 1], 1))
             layer = Layer(weights, X_data, biases, loss, activation_functions[i])
             self.layers.append(layer)
+            print(weights.shape, biases.shape)
         print("lol")
 
     def feed_forward(self, x):
         activations = [x]
+        zs = []
         for layer in self.layers:
-            x = layer.forward(x)
+            x, z = layer.forward(x)
+            zs.append(z)
             activations.append(x)
-        return activations
+        return activations, zs
 
     def get_loss(self, layer, target_y, estimate_y, derivate=False):
         if layer.loss == "L2":
@@ -46,15 +49,17 @@ class Network:
     def get_activations_func(self, layer, z, derivate=False):
         if layer.activation_func == "relu":
             return activation_funcs.relu(z, derivate=derivate)
+        elif layer.activation_func == "tanh":
+            return activation_funcs.tanh(z, derivate=derivate)
         elif layer.activation_func == "softmax":
             pass
 
 
-    def back_propagation(self, activations, target_y, learning_rate=0.01):
+    def back_propagation(self, activations, target_y, zs, learning_rate=0.001):
         last_error = None
         for layer_i in range(len(self.layers) - 1, -1, -1):
             layer = self.layers[layer_i]
-            z = layer.get_z(activations[layer_i])
+            z = zs[layer_i]
             if layer_i == len(self.layers) - 1:
                 # This is the last layer
                 last_error = np.array((self.get_loss(layer, target_y, activations[-1],
@@ -68,19 +73,16 @@ class Network:
                     self.get_activations_func(layer, z, derivate=True))
 
             layer.b -= learning_rate * last_error
-            # for i in range(len(layer.w)):
-            #     layer.w[i] -= learning_rate * np.array(activations[layer_i][i]).dot(last_error)
-                # np.array(last_error).dot(np.transpose()
-            layer.w -= learning_rate * np.array(last_error).dot(np.transpose(activations[
-                                                                                    layer_i]))
+            layer.w -= learning_rate * np.array(last_error).dot(np.transpose(activations[layer_i]))
 
     def train(self):
         for epoch in range(10000):
             for i in range(len(self.X_data)):
-                x = self.X_data[i]
+                # Needs to be shape for example: (2,1) instead of (2,)
+                x = self.X_data[i].reshape(self.X_data[i].shape[0], 1)
                 y = self.y_data[i]
-                activations = self.feed_forward(x)
-                self.back_propagation(activations, y)
+                activations, zs = self.feed_forward(x)
+                self.back_propagation(activations, y, zs)
 
     # def predict(self, input):
     # return np.max(0, input.dot(self.weights))

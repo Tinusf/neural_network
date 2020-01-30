@@ -2,6 +2,7 @@ import numpy as np
 import activation_funcs
 from scipy.special import softmax
 
+
 class Layer:
     def __init__(self, w, x, b, loss, activation_func):
         # This is the weights in to this layer.
@@ -16,19 +17,18 @@ class Layer:
     def forward(self, x):
         # TODO: Remember to change it for the first layer without activations.
         z = self.get_z(x)
-        return self.activation(z)
+        return self.activation(z), z
 
     def get_z(self, x):
-        return np.transpose(self.w).dot(x) + self.b
+        return self.w.dot(x) + self.b
 
     def activation(self, value):
         if self.activation_func == "relu":
             return activation_funcs.relu(value)
+        if self.activation_func == "tanh":
+            return activation_funcs.tanh(value)
         if self.activation_func == "softmax":
             return softmax(value)
-
-
-
 
 
 if __name__ == '__main__':
