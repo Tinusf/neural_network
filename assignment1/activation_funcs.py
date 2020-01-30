@@ -3,6 +3,7 @@ from scipy.special import softmax as sm
 
 
 def relu(value, derivate=False):
+    value = np.nan_to_num(value)
     if derivate:
         # return np.sign(value)
         value[value <= 0] = 0

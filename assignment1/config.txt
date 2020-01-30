@@ -7,12 +7,12 @@ validation=./DATA/validate_small.csv
 # layers is a comma-separated list of integers telling us how many nodes in each
 # hidden layer. Special case: If the value is only one element in the list, and
 # its value is 0, you should generate a net without a hidden layer
-layers = 400, 400, 400, 100
+layers = 24, 24
 
 # activations is a comma-separated list of key-words. It will have as many
 # elements as there are elements in the layers-list. Each keyword is a
 # non-linearity function, and legal values are relu, linear, and tanh.
-activations = relu, relu, relu, relu
+activations = relu, relu
 
 # loss_type chooses between L2 loss (for regression) and
 # cross_entropy (for classification).

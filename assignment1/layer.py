@@ -19,7 +19,9 @@ class Layer:
         return self.activation(z), z
 
     def get_z(self, x):
-        return self.w.dot(x) + self.b
+        x = np.nan_to_num(x)
+        self.w = np.nan_to_num(self.w)
+        return np.nan_to_num(self.w.dot(x) + self.b)
 
     def activation(self, value):
         if self.activation_func == "relu":

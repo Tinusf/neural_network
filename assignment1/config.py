@@ -1,14 +1,16 @@
 class Config:
-    config = {
-        "training": None,
-        "validation": None,
-        "layers": None,
-        "activations": None,
-        "loss_type": None,
-        "learning_rate": None,
-        "no_epochs": None,
-        "L2_regularization": None
+    config_types = {
+        "training": "str",
+        "validation": "str",
+        # TODO: THIS CAN BE 0!
+        "layers": "list_int",
+        "activations": "list_str",
+        "loss_type": "str",
+        "learning_rate": "float",
+        "no_epochs": "int",
+        "L2_regularization": "float"
     }
+    config = {}
 
     def __init__(self, file_path):
         lines = self.read_file(file_path)
@@ -32,7 +34,26 @@ class Config:
                 continue
             key, attr = line.split("=")
             key, attr = key.strip(), attr.strip()
-            if key in self.config.keys():
-                self.config[key] = attr
+            if key in self.config_types:
+                if self.config_types[key] == "float":
+                    self.config[key] = float(attr)
+                elif self.config_types[key] == "int":
+                    self.config[key] = int(attr)
+                elif self.config_types[key] == "list_int":
+                    # Remove all spaces
+                    attr = attr.replace(" ", "")
+                    # Split on comma.
+                    attr_list = attr.split(",")
+                    attr_list_int = [int(attr) for attr in attr_list]
+                    self.config[key] = attr_list_int
+                elif self.config_types[key] == "list_str":
+                    # Remove all spaces
+                    attr = attr.replace(" ", "")
+                    # Split on comma.
+                    attr_list = attr.split(",")
+                    self.config[key] = attr_list
+                elif self.config_types[key] == "str":
+                    self.config[key] = attr
+
             else:
                 print("Unknown key in config file.")
