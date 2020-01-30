@@ -43,8 +43,16 @@ class Network:
             print("loss", loss)
             if derivate:
                 return estimate_y - target_y
+            return loss
         if layer.loss == "cross_entropy":
-            pass
+            import math
+            # loss = -np.sum(target_y * math.log(estimate_y))
+            loss = -np.sum([target_y[x] * math.log(estimate_y[x]) for x in range(len(target_y))])
+            print("loss", loss)
+            if derivate:
+                print("lol")
+                return estimate_y - target_y
+            return loss
 
     def get_activations_func(self, layer, z, derivate=False):
         if layer.activation_func == "relu":
@@ -52,8 +60,7 @@ class Network:
         elif layer.activation_func == "tanh":
             return activation_funcs.tanh(z, derivate=derivate)
         elif layer.activation_func == "softmax":
-            pass
-
+            return None
 
     def back_propagation(self, activations, target_y, zs, learning_rate=0.001):
         last_error = None
@@ -62,18 +69,27 @@ class Network:
             z = zs[layer_i]
             if layer_i == len(self.layers) - 1:
                 # This is the last layer
-                last_error = np.array((self.get_loss(layer, target_y, activations[-1],
-                                                  derivate=True)))\
-                 * np.array((self.get_activations_func(layer, z, derivate=True)))
+                activation_func_derivate =self.get_activations_func(layer, z, derivate=True)
+                if activation_func_derivate is None:
+                    last_error = np.array((self.get_loss(layer, target_y, activations[-1],
+                                                         derivate=True)))
+                else:
+                    last_error = np.array((self.get_loss(layer, target_y, activations[-1],
+                                                         derivate=True))) \
+                                 * np.array((activation_func_derivate))
 
             else:
                 next_layer = self.layers[layer_i + 1]
-                # z = layer.get_z(x)
-                last_error = np.transpose(next_layer.w).dot(last_error) * (
-                    self.get_activations_func(layer, z, derivate=True))
+                activation_func_derivate = self.get_activations_func(layer, z, derivate=True)
+                if activation_func_derivate is None:
+                    last_error = np.transpose(next_layer.w).dot(last_error)
+                else:
+                    last_error = np.transpose(next_layer.w).dot(last_error) * (activation_func_derivate)
+                    print(last_error.shape)
 
-            layer.b -= learning_rate * last_error
-            layer.w -= learning_rate * np.array(last_error).dot(np.transpose(activations[layer_i]))
+            layer.b = layer.b - (learning_rate * last_error)
+            layer.w = layer.w - (learning_rate * np.array(last_error).dot(np.transpose(activations[
+                                                                                        layer_i])))
 
     def train(self):
         for epoch in range(10000):
@@ -81,6 +97,8 @@ class Network:
                 # Needs to be shape for example: (2,1) instead of (2,)
                 x = self.X_data[i].reshape(self.X_data[i].shape[0], 1)
                 y = self.y_data[i]
+                if y.shape: # if the y is an array and not just a single number.
+                    y = y.reshape(y.shape[0], 1)
                 activations, zs = self.feed_forward(x)
                 self.back_propagation(activations, y, zs)
 

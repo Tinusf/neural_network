@@ -1,6 +1,5 @@
 import numpy as np
 import activation_funcs
-from scipy.special import softmax
 
 
 class Layer:
@@ -28,11 +27,4 @@ class Layer:
         if self.activation_func == "tanh":
             return activation_funcs.tanh(value)
         if self.activation_func == "softmax":
-            return softmax(value)
-
-
-if __name__ == '__main__':
-    weights = np.array([[1, 2], [2, 3]])
-    activation_funcs = np.array([0.2, -0.2])
-    layer = Layer(weights, activation_funcs)
-    print(layer.get_output())
+            return activation_funcs.softmax(value)
