@@ -39,10 +39,10 @@ class Network:
         zs = []
         for layer in self.layers:
             x, z = layer.forward(x)
-            owo = [str(i) for i in np.reshape(z, -1)]
-            if "nan" in owo:
-                print("kurwa")
             zs.append(z)
+            # owo = [str(i) for i in np.reshape(z, -1)]
+            # if "nan" in owo:
+            #     print("kurwa")
             activations.append(x)
         return np.array(activations), np.array(zs)
 
@@ -54,8 +54,8 @@ class Network:
             return loss
         if layer.loss == "cross_entropy":
             # loss = -np.sum(target_y * np.log(estimate_y))
-            loss = -np.sum(target_y * np.log(estimate_y + 1e-9)) / 10
-            # loss = -np.sum([target_y[x] * func(estimate_y[x]) for x in range(len(target_y))])
+            loss = -np.sum(target_y * np.log(estimate_y + 1e-9))
+            # loss = -np.sum([target_y[x] * np.log(estimate_y[x]+ 1e-9) for x in range(len(target_y))])
 
             if str(loss) == "nan":
                 print("Lol")
@@ -83,8 +83,8 @@ class Network:
             if layer_i == len(self.layers) - 1:
                 # This is the last layer
                 activation_func_derivate = self.get_activations_func(layer, z, derivate=True)
+                loss = self.get_loss(layer, target_y, activations[-1])
                 if activation_func_derivate is None:
-                    loss = self.get_loss(layer, target_y, activations[-1])
                     last_error = np.array((self.get_loss(layer, target_y, activations[-1],
                                                          derivate=True)))
                 else:
@@ -117,27 +117,24 @@ class Network:
                 if y.shape:  # if the y is an array and not just a single number.
                     y = y.reshape(y.shape[0], 1)
                 activations, zs = self.feed_forward(x)
-                activations = np.nan_to_num(activations)
-                zs = np.nan_to_num(zs)
                 loss = self.back_propagation(activations, y, zs, learning_rate=self.lr)
                 total_loss += loss
 
 
             print("Training loss", total_loss / len(self.X_train))
-
-            # Check validation loss
-            total_val_loss = 0.0
-            for i in range(len(self.X_val)):
-                x = self.X_val[i].reshape(self.X_val[i].shape[0], 1)
-                y = self.y_val[i]
-                if y.shape:  # if the y is an array and not just a single number.
-                    y = y.reshape(y.shape[0], 1)
-                activations, zs = self.feed_forward(x)
-                activations = np.nan_to_num(activations)
-                loss = self.get_loss(self.layers[-1], y, activations[-1])
-                total_val_loss += loss
-            print("Validation loss", total_val_loss / len(self.X_val))
-            print("new epoch")
+            if self.use_validation:
+                # Check validation loss
+                total_val_loss = 0.0
+                for i in range(len(self.X_val)):
+                    x = self.X_val[i].reshape(self.X_val[i].shape[0], 1)
+                    y = self.y_val[i]
+                    if y.shape:  # if the y is an array and not just a single number.
+                        y = y.reshape(y.shape[0], 1)
+                    activations, zs = self.feed_forward(x)
+                    loss = self.get_loss(self.layers[-1], y, activations[-1])
+                    total_val_loss += loss
+                print("Validation loss", total_val_loss / len(self.X_val))
+                print("Epoch", epoch + 1)
 
     # def predict(self, input):
     # return np.max(0, input.dot(self.weights))

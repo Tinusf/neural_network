@@ -7,7 +7,7 @@ validation=./DATA/validate_small.csv
 # layers is a comma-separated list of integers telling us how many nodes in each
 # hidden layer. Special case: If the value is only one element in the list, and
 # its value is 0, you should generate a net without a hidden layer
-layers = 400, 400, 100, 10
+layers = 400, 400, 400, 100
 
 # activations is a comma-separated list of key-words. It will have as many
 # elements as there are elements in the layers-list. Each keyword is a
@@ -20,7 +20,7 @@ loss_type = cross_entropy
 
 [HYPER]
 # Learning rate to use
-learning_rate=5.e-2
+learning_rate=5.e-4
 
 # Number of epochs before finalizing
 no_epochs=500

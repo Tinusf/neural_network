@@ -17,10 +17,10 @@ def read_file(file_name):
     return np.array(X_data), np.array(y_data)
 
 
-def one_hot(labels):
+def one_hot(labels, classes=10):
     out = []
     for label in labels:
-        new_label = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        new_label = [0.0] * classes
         new_label[label] = 1.0
         out.append(new_label)
     return np.array(out)
