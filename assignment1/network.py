@@ -6,25 +6,32 @@ np.random.seed(42)
 
 
 class Network:
-    def __init__(self, X_data, y_data, number_of_nodes, loss, activation_functions, lr):
+    def __init__(self, X_trian, y_train, number_of_nodes, loss, activation_functions, lr=0.0001,
+                 X_val=None, y_val=None):
         """
-        :param X_data:
-        :param y_data:
+        :param X_trian:
+        :param y_train:
         :param number_of_nodes: Can for example be: [2, 1]
         Then the input layer consists of 2 nodes and there is 1 output node.
         This would be modelled by using one layer in this program.
         """
-        self.X_data = X_data
-        self.y_data = y_data
+        self.X_train = X_trian
+        self.y_train = y_train
         self.loss = loss
         self.layers = []
         self.lr = lr
+        if X_val is not None:
+            self.X_val = X_val
+            self.y_val = y_val
+            self.use_validation = True
+        else:
+            self.use_validation = False
 
         for i in range(len(number_of_nodes) - 1):
-            weights = np.random.normal(size=number_of_nodes[i:i + 2]).T
+            weights = np.random.normal(size=number_of_nodes[i:i + 2]).T / 20
             # TODO: figure out which is correct.
             biases = np.random.normal(size=(number_of_nodes[i + 1], 1))
-            layer = Layer(weights, X_data, biases, loss, activation_functions[i])
+            layer = Layer(weights, X_trian, biases, loss, activation_functions[i])
             self.layers.append(layer)
 
     def feed_forward(self, x):
@@ -42,25 +49,23 @@ class Network:
     def get_loss(self, layer, target_y, estimate_y, derivate=False):
         if layer.loss == "L2":
             loss = (target_y - estimate_y) ** 2
-            print("loss", loss)
             if derivate:
                 return estimate_y - target_y
             return loss
         if layer.loss == "cross_entropy":
             # loss = -np.sum(target_y * np.log(estimate_y))
-            func = lambda x : -0.001 if x == 0 else np.log(x)
             loss = -np.sum(target_y * np.log(estimate_y + 1e-9)) / 10
             # loss = -np.sum([target_y[x] * func(estimate_y[x]) for x in range(len(target_y))])
 
-            print("loss", loss)
             if str(loss) == "nan":
                 print("Lol")
             if derivate:
-                return estimate_y - target_y
+                derivate = estimate_y - target_y
+                derivate[(derivate >= -0.000001) & (derivate <= 0.000001)] = 0
+                derivate[(derivate >= 0.999)] = 1
+                derivate[(derivate <= -0.999)] = -1
+                return derivate
             return loss
-
-
-
 
     def get_activations_func(self, layer, z, derivate=False):
         if layer.activation_func == "relu":
@@ -79,6 +84,7 @@ class Network:
                 # This is the last layer
                 activation_func_derivate = self.get_activations_func(layer, z, derivate=True)
                 if activation_func_derivate is None:
+                    loss = self.get_loss(layer, target_y, activations[-1])
                     last_error = np.array((self.get_loss(layer, target_y, activations[-1],
                                                          derivate=True)))
                 else:
@@ -94,23 +100,44 @@ class Network:
                 else:
                     last_error = np.transpose(next_layer.w).dot(last_error) * (
                         activation_func_derivate)
-
+            # print(last_error)
+            # hender layer.b blir infinite.
             layer.b = layer.b - (learning_rate * last_error)
             layer.w = layer.w - (learning_rate * np.array(last_error).dot(np.transpose(activations[
                                                                                            layer_i])))
+        return loss
 
     def train(self):
         for epoch in range(10000):
-            for i in range(len(self.X_data)):
+            total_loss = 0.0
+            for i in range(len(self.X_train)):
                 # Needs to be shape for example: (2,1) instead of (2,)
-                x = self.X_data[i].reshape(self.X_data[i].shape[0], 1)
-                y = self.y_data[i]
+                x = self.X_train[i].reshape(self.X_train[i].shape[0], 1)
+                y = self.y_train[i]
                 if y.shape:  # if the y is an array and not just a single number.
                     y = y.reshape(y.shape[0], 1)
                 activations, zs = self.feed_forward(x)
                 activations = np.nan_to_num(activations)
                 zs = np.nan_to_num(zs)
-                self.back_propagation(activations, y, zs, learning_rate=self.lr)
+                loss = self.back_propagation(activations, y, zs, learning_rate=self.lr)
+                total_loss += loss
+
+
+            print("Training loss", total_loss / len(self.X_train))
+
+            # Check validation loss
+            total_val_loss = 0.0
+            for i in range(len(self.X_val)):
+                x = self.X_val[i].reshape(self.X_val[i].shape[0], 1)
+                y = self.y_val[i]
+                if y.shape:  # if the y is an array and not just a single number.
+                    y = y.reshape(y.shape[0], 1)
+                activations, zs = self.feed_forward(x)
+                activations = np.nan_to_num(activations)
+                loss = self.get_loss(self.layers[-1], y, activations[-1])
+                total_val_loss += loss
+            print("Validation loss", total_val_loss / len(self.X_val))
+            print("new epoch")
 
     # def predict(self, input):
     # return np.max(0, input.dot(self.weights))

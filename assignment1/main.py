@@ -9,25 +9,27 @@ np.random.seed(42)
 def main():
     config = Config("config.txt")
     lr = config.config["learning_rate"]
-    X_data, y_data = read_file(config.config["training"])
+    X_train, y_train = read_file(config.config["training"])
+    X_val, y_val = read_file(config.config["validation"])
     activation_functions = config.config["activations"]
     loss_type = config.config["loss_type"]
 
     layers = config.config["layers"]
-    layers.insert(0, X_data.shape[1])
+    layers.insert(0, X_train.shape[1])
 
     if loss_type == "cross_entropy":
         activation_functions.append("softmax")
         layers.append(10)
-        y_data = one_hot(y_data)
+        y_train = one_hot(y_train)
+        y_val = one_hot(y_val)
         print("lo")
     else:
         activation_functions.append("relu") # TODO:  Typisk linear.
         layers.append(1)
-    X_data = np.nan_to_num(X_data)
-    y_data = np.nan_to_num(y_data)
-    network = Network(X_data, y_data, layers, loss_type, activation_functions,
-                      lr)
+    X_train = np.nan_to_num(X_train)
+    y_train = np.nan_to_num(y_train)
+    network = Network(X_train, y_train, layers, loss_type, activation_functions,
+                      lr, X_val=X_val, y_val=y_val)
 
     # X_data = np.array([[1, 1],
     #                    [1, 0],
