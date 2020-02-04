@@ -1,13 +1,14 @@
 from layer import Layer
 import numpy as np
 import activation_funcs
+import matplotlib.pyplot as plt
 
 np.random.seed(42)
 
 
 class Network:
     def __init__(self, X_trian, y_train, number_of_nodes, loss, activation_functions, lr=0.0001,
-                 X_val=None, y_val=None, regularization_factor=None):
+                 X_val=None, y_val=None, regularization_factor=0):
         """
         :param X_trian:
         :param y_train:
@@ -101,7 +102,7 @@ class Network:
                 # This is the last layer
                 activation_func_derivate = self.get_activations_func(layer, z, derivate=True)
                 loss = self.get_loss(layer, target_y, activations[-1])
-                if self.regularization_factor is not None:
+                if self.regularization_factor > 0:
                     l2_loss = self.get_l2_regularization()
                     loss += l2_loss
                 if activation_func_derivate is None:
@@ -123,7 +124,7 @@ class Network:
             # print(last_error)
             # hender layer.b blir infinite.
 
-            if self.regularization_factor is not None:
+            if self.regularization_factor > 0:
                 layer.w = layer.w - (learning_rate * np.array(last_error).dot(np.transpose(
                     activations[layer_i])) + self.regularization_factor * layer.w)
 
@@ -137,8 +138,11 @@ class Network:
         return loss
 
     def train(self):
-        for epoch in range(10000):
-            print("Epoch", epoch + 1)
+        epoches = []
+        train_losses = []
+        val_losses = []
+        for epoch in range(1, 10000):
+            print("Epoch", epoch)
             total_loss = 0.0
             for i in range(len(self.X_train)):
                 # Needs to be shape for example: (2,1) instead of (2,)
@@ -150,8 +154,8 @@ class Network:
                 loss = self.back_propagation(activations, y, zs, learning_rate=self.lr)
                 total_loss += loss
 
-
-            print("Training loss", total_loss / len(self.X_train))
+            training_loss = total_loss / len(self.X_train)
+            print("Training loss", training_loss)
             if self.use_validation:
                 # Check validation loss
                 total_val_loss = 0.0
@@ -163,7 +167,17 @@ class Network:
                     activations, zs = self.feed_forward(x)
                     loss = self.get_loss(self.layers[-1], y, activations[-1])
                     total_val_loss += loss
-                print("Validation loss", total_val_loss / len(self.X_val))
+                val_loss = total_val_loss / len(self.X_val)
+                val_losses.append(val_loss)
+                print("Validation loss", val_loss)
+            epoches.append(epoch)
+            train_losses.append(training_loss)
+            plt.plot(epoches, train_losses, "b", label="Training loss")
+            if self.use_validation:
+                plt.plot(epoches, val_losses, "r", label="Validation loss")
+            plt.legend()
+            # plt.show()
+            plt.pause(0.000001)
 
     # def predict(self, input):
     # return np.max(0, input.dot(self.weights))
