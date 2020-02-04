@@ -173,12 +173,14 @@ class Network:
                 print("Validation loss", val_loss)
             epoches.append(epoch)
             train_losses.append(training_loss)
-            plt.plot(epoches, train_losses, "b", label="Training loss")
-            if self.use_validation:
-                plt.plot(epoches, val_losses, "r", label="Validation loss")
-            plt.legend()
-            # plt.show()
-            plt.pause(0.000001)
+            if epoch % 10 == 0:
+                plt.plot(epoches, train_losses, "b", label="Training loss")
+                if self.use_validation:
+                    plt.plot(epoches, val_losses, "r", label="Validation loss")
+                plt.legend()
+                # plt.show()
+                plt.pause(0.00000001)
+        plt.show()
 
     # def predict(self, input):
     # return np.max(0, input.dot(self.weights))

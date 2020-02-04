@@ -1,0 +1,8 @@
+training=./DATA/or.csv
+layers = 0
+loss_type = L2
+learning_rate=0.1
+no_epochs=500
+L2_regularization=0
+
+

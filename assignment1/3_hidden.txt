@@ -1,0 +1,9 @@
+training=./DATA/xor.csv
+layers = 2
+activations = relu
+loss_type = L2
+learning_rate=0.05
+no_epochs=500
+L2_regularization=0
+
+

@@ -7,14 +7,16 @@ np.random.seed(42)
 
 
 def main():
-    config = Config("xor.txt")
+    config = Config("5_any_structure.txt")
     lr = config.config["learning_rate"]
     no_epochs = config.config["no_epochs"]
     X_train, y_train = read_file(config.config["training"])
     X_val, y_val = None, None
     if "validation" in config.config:
         X_val, y_val = read_file(config.config["validation"])
-    activation_functions = config.config["activations"]
+    activation_functions = []
+    if "activations" in config.config:
+        activation_functions = config.config["activations"]
     loss_type = config.config["loss_type"]
     l2_regularization_factor = config.config["L2_regularization"]
 
@@ -26,7 +28,8 @@ def main():
         activation_functions.append("softmax")
         layers.append(n_classes)
         y_train = one_hot(y_train, classes=n_classes)
-        y_val = one_hot(y_val, classes=n_classes)
+        if y_val is not None:
+            y_val = one_hot(y_val, classes=n_classes)
     else:
         activation_functions.append("linear")  # TODO:  Typisk linear, kan være relu og.
         layers.append(1)

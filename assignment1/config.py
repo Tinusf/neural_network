@@ -2,7 +2,6 @@ class Config:
     config_types = {
         "training": "str",
         "validation": "str",
-        # TODO: THIS CAN BE 0!
         "layers": "list_int",
         "activations": "list_str",
         "loss_type": "str",
