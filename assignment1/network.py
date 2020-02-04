@@ -86,6 +86,8 @@ class Network:
             return activation_funcs.tanh(z, derivate=derivate)
         elif layer.activation_func == "softmax":
             return None
+        elif layer.activation_func == "linear":
+            return activation_funcs.linear(z, derivate=derivate)
 
     def back_propagation(self, activations, target_y, zs, learning_rate=0.0001):
         last_error = None
@@ -119,7 +121,6 @@ class Network:
                         activation_func_derivate)
             # print(last_error)
             # hender layer.b blir infinite.
-
 
             if self.regularization_factor is not None:
                 layer.w = layer.w - (learning_rate * np.array(last_error).dot(np.transpose(

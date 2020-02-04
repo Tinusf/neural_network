@@ -25,7 +25,7 @@ def main():
         y_train = one_hot(y_train, classes=n_classes)
         y_val = one_hot(y_val, classes=n_classes)
     else:
-        activation_functions.append("relu")  # TODO:  Typisk linear.
+        activation_functions.append("linear")  # TODO:  Typisk linear, kan være relu og.
         layers.append(1)
     network = Network(X_train, y_train, layers, loss_type, activation_functions,
                       lr, X_val=X_val, y_val=y_val, regularization_factor=l2_regularization_factor)
@@ -34,11 +34,10 @@ def main():
     #                    [1, 0],
     #                    [0, 1],
     #                    [0, 0]])
-    # y_data = np.array([[1, 0], [1, 0], [1, 0], [0, 1]])
-    # activation_functions = ["softmax"]
-    # layers = [2, 2]
-    # network = Network(X_data, y_data, layers, "cross_entropy", activation_functions,
-    # regularization_factor=0.0001)
+    # y_data = np.array([1, 1, 1, 0])
+    # activation_functions = ["relu"]
+    # layers = [2, 1]
+    # network = Network(X_data, y_data, layers, "L2", activation_functions, lr=0.001)
 
     # X_data = np.array([[0.8, 0.7, 0.2, 1],
     #                    [0, 1, 1, 0],

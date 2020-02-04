@@ -28,3 +28,5 @@ class Layer:
             return activation_funcs.tanh(value)
         if self.activation_func == "softmax":
             return activation_funcs.softmax(value)
+        if self.activation_func == "linear":
+            return activation_funcs.linear(value)

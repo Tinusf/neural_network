@@ -25,3 +25,10 @@ def softmax(value, derivate=False):
         pass
     else:
         return sm(value)
+
+
+def linear(value, derivate=False):
+    if derivate:
+        value.fill(1)
+        return value
+    return value
