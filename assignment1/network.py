@@ -151,7 +151,7 @@ class Network:
                 if y.shape:  # if the y is an array and not just a single number.
                     y = y.reshape(y.shape[0], 1)
                 activations, zs = self.feed_forward(x)
-                loss = self.back_propagation(activations, y, zs, learning_rate=self.lr)
+                loss = self.back_propagation(activations, y, zs, learning_rate=self.lr).squeeze()
                 total_loss += loss
 
             training_loss = total_loss / len(self.X_train)
@@ -165,7 +165,7 @@ class Network:
                     if y.shape:  # if the y is an array and not just a single number.
                         y = y.reshape(y.shape[0], 1)
                     activations, zs = self.feed_forward(x)
-                    loss = self.get_loss(self.layers[-1], y, activations[-1])
+                    loss = self.get_loss(self.layers[-1], y, activations[-1]).squeeze()
                     total_val_loss += loss
                 val_loss = total_val_loss / len(self.X_val)
                 val_losses.append(val_loss)
