@@ -24,3 +24,10 @@ def one_hot(labels, classes=10):
         new_label[label] = 1.0
         out.append(new_label)
     return np.array(out)
+
+
+def get_num_of_classes(y_data):
+    unique = set()
+    for y in y_data:
+        unique.add(y)
+    return len(unique)
