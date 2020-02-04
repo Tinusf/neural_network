@@ -56,8 +56,8 @@ class Network:
             return l2_derivate_matrix
         else:
             all_weights_squared = np.sum(np.sum(layer.w ** 2) for layer in self.layers)
-            all_biases_squared = np.sum(np.sum(layer.b ** 2) for layer in self.layers)
-            return self.regularization_factor * (all_weights_squared)
+            # all_biases_squared = np.sum(np.sum(layer.b ** 2) for layer in self.layers)
+            return self.regularization_factor * all_weights_squared
 
     def get_loss(self, layer, target_y, estimate_y, derivate=False):
         if layer.loss == "L2":
@@ -74,9 +74,9 @@ class Network:
                 print("Lol")
             if derivate:
                 derivate = estimate_y - target_y
-                derivate[(derivate >= -0.000001) & (derivate <= 0.000001)] = 0
-                derivate[(derivate >= 0.999)] = 1
-                derivate[(derivate <= -0.999)] = -1
+                # derivate[(derivate >= -0.000001) & (derivate <= 0.000001)] = 0
+                # derivate[(derivate >= 0.999)] = 1
+                # derivate[(derivate <= -0.999)] = -1
                 return derivate
             return loss
 
@@ -127,8 +127,7 @@ class Network:
                 layer.w = layer.w - (learning_rate * np.array(last_error).dot(np.transpose(
                     activations[layer_i])) + self.regularization_factor * layer.w)
 
-                layer.b = layer.b - (learning_rate * last_error + self.regularization_factor *
-                                     layer.b)
+                layer.b = layer.b - (learning_rate * last_error)
             else:
                 layer.b = layer.b - (learning_rate * last_error)
                 layer.w = layer.w - (learning_rate * np.array(last_error).dot(np.transpose(
