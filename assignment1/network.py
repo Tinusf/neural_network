@@ -29,7 +29,8 @@ class Network:
             self.use_validation = False
 
         for i in range(len(number_of_nodes) - 1):
-            weights = np.random.normal(size=number_of_nodes[i:i + 2]).T / 20
+            weights = np.random.normal(size=number_of_nodes[i:i + 2]).T / np.sqrt(
+                number_of_nodes[i])
             # TODO: figure out which is correct.
             biases = np.random.normal(size=(number_of_nodes[i + 1], 1))
             layer = Layer(weights, X_trian, biases, loss, activation_functions[i])
@@ -56,7 +57,7 @@ class Network:
         else:
             all_weights_squared = np.sum(np.sum(layer.w ** 2) for layer in self.layers)
             all_biases_squared = np.sum(np.sum(layer.b ** 2) for layer in self.layers)
-            return self.regularization_factor * (all_weights_squared + all_biases_squared)
+            return self.regularization_factor * (all_weights_squared)
 
     def get_loss(self, layer, target_y, estimate_y, derivate=False):
         if layer.loss == "L2":
@@ -138,6 +139,7 @@ class Network:
 
     def train(self):
         for epoch in range(10000):
+            print("Epoch", epoch + 1)
             total_loss = 0.0
             for i in range(len(self.X_train)):
                 # Needs to be shape for example: (2,1) instead of (2,)
@@ -163,7 +165,6 @@ class Network:
                     loss = self.get_loss(self.layers[-1], y, activations[-1])
                     total_val_loss += loss
                 print("Validation loss", total_val_loss / len(self.X_val))
-                print("Epoch", epoch + 1)
 
     # def predict(self, input):
     # return np.max(0, input.dot(self.weights))
