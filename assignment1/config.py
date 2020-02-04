@@ -42,10 +42,13 @@ class Config:
                 elif self.config_types[key] == "list_int":
                     # Remove all spaces
                     attr = attr.replace(" ", "")
-                    # Split on comma.
-                    attr_list = attr.split(",")
-                    attr_list_int = [int(attr) for attr in attr_list]
-                    self.config[key] = attr_list_int
+                    if attr == "0":
+                        self.config[key] = []
+                    else:
+                        # Split on comma.
+                        attr_list = attr.split(",")
+                        attr_list_int = [int(attr) for attr in attr_list]
+                        self.config[key] = attr_list_int
                 elif self.config_types[key] == "list_str":
                     # Remove all spaces
                     attr = attr.replace(" ", "")

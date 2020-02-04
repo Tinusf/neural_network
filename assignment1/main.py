@@ -7,49 +7,32 @@ np.random.seed(42)
 
 
 def main():
-    config = Config("config.txt")
+    config = Config("xor.txt")
     lr = config.config["learning_rate"]
-    # X_train, y_train = read_file(config.config["training"])
-    # X_val, y_val = read_file(config.config["validation"])
-    # activation_functions = config.config["activations"]
-    # loss_type = config.config["loss_type"]
-    # l2_regularization_factor = config.config["L2_regularization"]
-    #
-    # layers = config.config["layers"]
-    # layers.insert(0, X_train.shape[1])
-    #
-    # if loss_type == "cross_entropy":
-    #     n_classes = get_num_of_classes(y_train)
-    #     activation_functions.append("softmax")
-    #     layers.append(n_classes)
-    #     y_train = one_hot(y_train, classes=n_classes)
-    #     y_val = one_hot(y_val, classes=n_classes)
-    # else:
-    #     activation_functions.append("linear")  # TODO:  Typisk linear, kan være relu og.
-    #     layers.append(1)
-    # network = Network(X_train, y_train, layers, loss_type, activation_functions,
-    #                   lr, X_val=X_val, y_val=y_val, regularization_factor=l2_regularization_factor)
+    no_epochs = config.config["no_epochs"]
+    X_train, y_train = read_file(config.config["training"])
+    X_val, y_val = None, None
+    if "validation" in config.config:
+        X_val, y_val = read_file(config.config["validation"])
+    activation_functions = config.config["activations"]
+    loss_type = config.config["loss_type"]
+    l2_regularization_factor = config.config["L2_regularization"]
 
-    X_data = np.array([[1, 1],
-                       [1, 0],
-                       [0, 1],
-                       [0, 0]])
-    y_data = np.array([0, 1, 1, 0])
-    activation_functions = ["tanh", "tanh", "linear"]
-    layers = [2, 5, 5, 1]
-    network = Network(X_data, y_data, layers, "L2", activation_functions, lr=0.1)
+    layers = config.config["layers"]
+    layers.insert(0, X_train.shape[1])
 
-    # X_data = np.array([[0.8, 0.7, 0.2, 1],
-    #                    [0, 1, 1, 0],
-    #                    [1, 0, 1, 0],
-    #                    [0, 0, 0, 0]])
-    # y_data = one_hot(np.array([0, 1, 2, 3]), 4)
-    # y_train = one_hot(y_train)
-    # activation_functions = ["relu", "softmax"]
-    # layers = [784, 400, 10]
-    # # TODO: hvorfor funker x_data og y_data men ikke x_train og y_train???? er det fordi
-    # # den ikke har l2 generalization så vekter blir større og større for ever?
-    # network = Network(X_train, y_train, layers, "cross_entropy", activation_functions, lr)
+    if loss_type == "cross_entropy":
+        n_classes = get_num_of_classes(y_train)
+        activation_functions.append("softmax")
+        layers.append(n_classes)
+        y_train = one_hot(y_train, classes=n_classes)
+        y_val = one_hot(y_val, classes=n_classes)
+    else:
+        activation_functions.append("linear")  # TODO:  Typisk linear, kan være relu og.
+        layers.append(1)
+    network = Network(X_train, y_train, layers, loss_type, activation_functions,
+                      lr, X_val=X_val, y_val=y_val,
+                      regularization_factor=l2_regularization_factor, no_epochs=no_epochs)
 
     assert len(layers) == len(activation_functions) + 1
     network.train()

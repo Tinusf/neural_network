@@ -8,7 +8,7 @@ np.random.seed(42)
 
 class Network:
     def __init__(self, X_trian, y_train, number_of_nodes, loss, activation_functions, lr=0.0001,
-                 X_val=None, y_val=None, regularization_factor=0):
+                 X_val=None, y_val=None, regularization_factor=0, no_epochs=10000):
         """
         :param X_trian:
         :param y_train:
@@ -21,6 +21,7 @@ class Network:
         self.loss = loss
         self.layers = []
         self.lr = lr
+        self.no_epochs = no_epochs
         self.regularization_factor = regularization_factor
         if X_val is not None:
             self.X_val = X_val
@@ -141,7 +142,7 @@ class Network:
         epoches = []
         train_losses = []
         val_losses = []
-        for epoch in range(1, 10000):
+        for epoch in range(1, self.no_epochs):
             print("Epoch", epoch)
             total_loss = 0.0
             for i in range(len(self.X_train)):
