@@ -7,7 +7,7 @@ np.random.seed(42)
 
 class Network:
     def __init__(self, X_trian, y_train, number_of_nodes, loss, activation_functions, lr=0.0001,
-                 X_val=None, y_val=None):
+                 X_val=None, y_val=None, regularization_factor=None):
         """
         :param X_trian:
         :param y_train:
@@ -20,6 +20,7 @@ class Network:
         self.loss = loss
         self.layers = []
         self.lr = lr
+        self.regularization_factor = regularization_factor
         if X_val is not None:
             self.X_val = X_val
             self.y_val = y_val
@@ -45,6 +46,17 @@ class Network:
             #     print("kurwa")
             activations.append(x)
         return np.array(activations), np.array(zs)
+
+    def get_l2_regularization(self, derivate=False, weights=False):
+        # TODO: skal denne inkludere biases?
+        if derivate:
+            l2_derivate_matrix = np.zeros_like(weights)
+            l2_derivate_matrix.fill(self.regularization_factor)
+            return l2_derivate_matrix
+        else:
+            all_weights_squared = np.sum(np.sum(layer.w ** 2) for layer in self.layers)
+            all_biases_squared = np.sum(np.sum(layer.b ** 2) for layer in self.layers)
+            return self.regularization_factor * (all_weights_squared + all_biases_squared)
 
     def get_loss(self, layer, target_y, estimate_y, derivate=False):
         if layer.loss == "L2":
@@ -79,11 +91,16 @@ class Network:
         last_error = None
         for layer_i in range(len(self.layers) - 1, -1, -1):
             layer = self.layers[layer_i]
+            # if self.regularization_factor:
+            #     layer.w = layer.w * self.get_l2_regularization(derivate=True, weights=layer.w)
             z = zs[layer_i]
             if layer_i == len(self.layers) - 1:
                 # This is the last layer
                 activation_func_derivate = self.get_activations_func(layer, z, derivate=True)
                 loss = self.get_loss(layer, target_y, activations[-1])
+                if self.regularization_factor is not None:
+                    l2_loss = self.get_l2_regularization()
+                    loss += l2_loss
                 if activation_func_derivate is None:
                     last_error = np.array((self.get_loss(layer, target_y, activations[-1],
                                                          derivate=True)))
@@ -102,9 +119,20 @@ class Network:
                         activation_func_derivate)
             # print(last_error)
             # hender layer.b blir infinite.
-            layer.b = layer.b - (learning_rate * last_error)
-            layer.w = layer.w - (learning_rate * np.array(last_error).dot(np.transpose(activations[
-                                                                                           layer_i])))
+
+
+            if self.regularization_factor is not None:
+                layer.w = layer.w - (learning_rate * np.array(last_error).dot(np.transpose(
+                    activations[layer_i])) + self.regularization_factor * layer.w)
+
+                layer.b = layer.b - (learning_rate * last_error + self.regularization_factor *
+                                     layer.b)
+            else:
+                layer.b = layer.b - (learning_rate * last_error)
+                layer.w = layer.w - (learning_rate * np.array(last_error).dot(np.transpose(
+                    activations[layer_i])))
+
+
         return loss
 
     def train(self):

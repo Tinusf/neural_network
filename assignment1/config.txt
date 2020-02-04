@@ -26,6 +26,6 @@ learning_rate=5.e-4
 no_epochs=500
 
 # What L2-regularization to use to avoid overfitting.
-L2_regularization=5.E-3
+L2_regularization=5.E-5
 
 
