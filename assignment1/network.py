@@ -44,9 +44,6 @@ class Network:
         for layer in self.layers:
             x, z = layer.forward(x)
             zs.append(z)
-            # owo = [str(i) for i in np.reshape(z, -1)]
-            # if "nan" in owo:
-            #     print("kurwa")
             activations.append(x)
         return np.array(activations), np.array(zs)
 
@@ -58,8 +55,8 @@ class Network:
             return l2_derivate_matrix
         else:
             all_weights_squared = np.sum(np.sum(layer.w ** 2) for layer in self.layers)
-            # all_biases_squared = np.sum(np.sum(layer.b ** 2) for layer in self.layers)
-            return self.regularization_factor * all_weights_squared
+            all_biases_squared = np.sum(np.sum(layer.b ** 2) for layer in self.layers)
+            return self.regularization_factor * (all_weights_squared + all_biases_squared)
 
     def get_loss(self, layer, target_y, estimate_y, derivate=False):
         if layer.loss == "L2":
@@ -68,17 +65,10 @@ class Network:
                 return estimate_y - target_y
             return loss
         if layer.loss == "cross_entropy":
-            # loss = -np.sum(target_y * np.log(estimate_y))
             loss = -np.sum(target_y * np.log(estimate_y + 1e-9))
-            # loss = -np.sum([target_y[x] * np.log(estimate_y[x]+ 1e-9) for x in range(len(target_y))])
 
-            if str(loss) == "nan":
-                print("Lol")
             if derivate:
                 derivate = estimate_y - target_y
-                # derivate[(derivate >= -0.000001) & (derivate <= 0.000001)] = 0
-                # derivate[(derivate >= 0.999)] = 1
-                # derivate[(derivate <= -0.999)] = -1
                 return derivate
             return loss
 
@@ -96,8 +86,6 @@ class Network:
         last_error = None
         for layer_i in range(len(self.layers) - 1, -1, -1):
             layer = self.layers[layer_i]
-            # if self.regularization_factor:
-            #     layer.w = layer.w * self.get_l2_regularization(derivate=True, weights=layer.w)
             z = zs[layer_i]
             if layer_i == len(self.layers) - 1:
                 # This is the last layer
@@ -122,19 +110,16 @@ class Network:
                 else:
                     last_error = np.transpose(next_layer.w).dot(last_error) * (
                         activation_func_derivate)
-            # print(last_error)
-            # hender layer.b blir infinite.
 
             if self.regularization_factor > 0:
                 layer.w = layer.w - (learning_rate * np.array(last_error).dot(np.transpose(
                     activations[layer_i])) + self.regularization_factor * layer.w)
-
-                layer.b = layer.b - (learning_rate * last_error)
+                layer.b = layer.b - (learning_rate * last_error + self.regularization_factor *
+                                     layer.b)
             else:
-                layer.b = layer.b - (learning_rate * last_error)
                 layer.w = layer.w - (learning_rate * np.array(last_error).dot(np.transpose(
                     activations[layer_i])))
-
+                layer.b = layer.b - (learning_rate * last_error)
 
         return loss
 

@@ -30,7 +30,7 @@ def main():
         y_train = one_hot(y_train, classes=n_classes)
         if y_val is not None:
             y_val = one_hot(y_val, classes=n_classes)
-    else:
+    else: # L2
         activation_functions.append("linear")  # TODO:  Typisk linear, kan være relu og.
         layers.append(1)
     network = Network(X_train, y_train, layers, loss_type, activation_functions,
