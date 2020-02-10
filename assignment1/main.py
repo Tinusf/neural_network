@@ -7,7 +7,7 @@ np.random.seed(42)
 
 
 def main():
-    config = Config("5_any_structure.txt")
+    config = Config("1_regression.txt")
     lr = config.config["learning_rate"]
     no_epochs = config.config["no_epochs"]
     X_train, y_train = read_file(config.config["training"])

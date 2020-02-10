@@ -14,11 +14,11 @@ class Layer:
         self.activation_func = activation_func
 
     def forward(self, x):
-        # TODO: Remember to change it for the first layer without activations.
         z = self.get_z(x)
         return self.activation(z), z
 
     def get_z(self, x):
+        # Don't need to transpose the weights because that was done when the weights were created.
         return self.w.dot(x) + self.b
 
     def activation(self, value):

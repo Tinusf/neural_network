@@ -31,10 +31,11 @@ class Network:
             self.use_validation = False
 
         for i in range(len(number_of_nodes) - 1):
+            # Transpose the weights here so I don't have to do it every time you run feedforward.
             weights = np.random.normal(size=number_of_nodes[i:i + 2]).T / np.sqrt(
                 number_of_nodes[i])
-            # TODO: figure out which is correct.
             biases = np.random.normal(size=(number_of_nodes[i + 1], 1))
+            # Create this layer.
             layer = Layer(weights, X_trian, biases, loss, activation_functions[i])
             self.layers.append(layer)
 
@@ -47,16 +48,10 @@ class Network:
             activations.append(x)
         return np.array(activations), np.array(zs)
 
-    def get_l2_regularization(self, derivate=False, weights=False):
-        # TODO: skal denne inkludere biases?
-        if derivate:
-            l2_derivate_matrix = np.zeros_like(weights)
-            l2_derivate_matrix.fill(self.regularization_factor)
-            return l2_derivate_matrix
-        else:
-            all_weights_squared = np.sum(np.sum(layer.w ** 2) for layer in self.layers)
-            all_biases_squared = np.sum(np.sum(layer.b ** 2) for layer in self.layers)
-            return self.regularization_factor * (all_weights_squared + all_biases_squared)
+    def get_l2_regularization_loss(self):
+        all_weights_squared = np.sum(np.sum(layer.w ** 2) for layer in self.layers)
+        all_biases_squared = np.sum(np.sum(layer.b ** 2) for layer in self.layers)
+        return self.regularization_factor * (all_weights_squared + all_biases_squared)
 
     def get_loss(self, layer, target_y, estimate_y, derivate=False):
         if layer.loss == "L2":
@@ -65,6 +60,7 @@ class Network:
                 return estimate_y - target_y
             return loss
         if layer.loss == "cross_entropy":
+            # add 1e-9 just to avoid taking the log of 0.
             loss = -np.sum(target_y * np.log(estimate_y + 1e-9))
 
             if derivate:
@@ -78,12 +74,16 @@ class Network:
         elif layer.activation_func == "tanh":
             return activation_funcs.tanh(z, derivate=derivate)
         elif layer.activation_func == "softmax":
+            # I assume that if we use softmax then we use cross_entropy and therefore we don't
+            # need the derivate of the activation funciton.
             return None
         elif layer.activation_func == "linear":
             return activation_funcs.linear(z, derivate=derivate)
 
     def back_propagation(self, activations, target_y, zs, learning_rate=0.0001):
+        # Keep track of the previous error.
         last_error = None
+        # Go through every layer backwards.
         for layer_i in range(len(self.layers) - 1, -1, -1):
             layer = self.layers[layer_i]
             z = zs[layer_i]
@@ -92,7 +92,7 @@ class Network:
                 activation_func_derivate = self.get_activations_func(layer, z, derivate=True)
                 loss = self.get_loss(layer, target_y, activations[-1])
                 if self.regularization_factor > 0:
-                    l2_loss = self.get_l2_regularization()
+                    l2_loss = self.get_l2_regularization_loss()
                     loss += l2_loss
                 if activation_func_derivate is None:
                     last_error = np.array((self.get_loss(layer, target_y, activations[-1],
