@@ -120,7 +120,7 @@ class Network:
                 layer.w = layer.w - learning_rate * (np.array(last_error).dot(np.transpose(
                     activations[layer_i])) + self.regularization_factor * layer.w)
                 layer.b = layer.b - learning_rate * (last_error + self.regularization_factor *
-                                     layer.b)
+                                                     layer.b)
             else:
                 layer.w = layer.w - (learning_rate * np.array(last_error).dot(np.transpose(
                     activations[layer_i])))
@@ -183,6 +183,3 @@ class Network:
                 f.close()
                 print(output)
         plt.show()
-
-    # def predict(self, input):
-    # return np.max(0, input.dot(self.weights))

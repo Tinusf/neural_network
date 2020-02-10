@@ -1,0 +1,7 @@
+training=./DATA/training.csv
+validation=./DATA/validation.csv
+layers = 0
+loss_type = cross_entropy
+learning_rate=5.e-6
+no_epochs=500
+L2_regularization=0.0001

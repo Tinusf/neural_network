@@ -18,6 +18,7 @@ def read_file(file_name):
 
 
 def one_hot(labels, classes=10):
+    # Creates a one_hot representation of the labels.
     out = []
     for label in labels:
         new_label = [0.0] * classes
@@ -27,7 +28,6 @@ def one_hot(labels, classes=10):
 
 
 def get_num_of_classes(y_data):
-    unique = set()
-    for y in y_data:
-        unique.add(y)
-    return len(unique)
+    # This should be the maximum value + 1.
+    max_value = np.max(y_data)
+    return max_value + 1
