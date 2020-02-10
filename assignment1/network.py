@@ -92,9 +92,12 @@ class Network:
                 activation_func_derivate = self.get_activations_func(layer, z, derivate=True)
                 loss = self.get_loss(layer, target_y, activations[-1])
                 if self.regularization_factor > 0:
+                    # Add regularization loss if it's used.
                     l2_loss = self.get_l2_regularization_loss()
                     loss += l2_loss
                 if activation_func_derivate is None:
+                    # If it's none it means we are in a softmax/ cross_entropy layer and we
+                    # don't need it.
                     last_error = np.array((self.get_loss(layer, target_y, activations[-1],
                                                          derivate=True)))
                 else:
@@ -103,6 +106,8 @@ class Network:
                                  * np.array((activation_func_derivate))
 
             else:
+                # Not the last layer.
+                # Next layer.
                 next_layer = self.layers[layer_i + 1]
                 activation_func_derivate = self.get_activations_func(layer, z, derivate=True)
                 if activation_func_derivate is None:
@@ -112,9 +117,9 @@ class Network:
                         activation_func_derivate)
 
             if self.regularization_factor > 0:
-                layer.w = layer.w - (learning_rate * np.array(last_error).dot(np.transpose(
+                layer.w = layer.w - learning_rate * (np.array(last_error).dot(np.transpose(
                     activations[layer_i])) + self.regularization_factor * layer.w)
-                layer.b = layer.b - (learning_rate * last_error + self.regularization_factor *
+                layer.b = layer.b - learning_rate * (last_error + self.regularization_factor *
                                      layer.b)
             else:
                 layer.w = layer.w - (learning_rate * np.array(last_error).dot(np.transpose(
@@ -124,6 +129,7 @@ class Network:
         return loss
 
     def train(self):
+        # These lists are used for plotting the graph.
         epoches = []
         train_losses = []
         val_losses = []
@@ -158,13 +164,24 @@ class Network:
                 print("Validation loss", val_loss)
             epoches.append(epoch)
             train_losses.append(training_loss)
-            if epoch % 10 == 0:
+            if epoch % 5 == 1:
                 plt.plot(epoches, train_losses, "b", label="Training loss")
                 if self.use_validation:
                     plt.plot(epoches, val_losses, "r", label="Validation loss")
-                plt.legend()
-                # plt.show()
-                plt.pause(0.00000001)
+                if epoch == 1:
+                    # Only plot the legend on the first epoch.
+                    plt.legend()
+                plt.pause(0.0001)
+
+            if epoch == self.no_epochs - 1:
+                # write out the learned weights.
+                f = open("weights_learned.txt", "w")
+                weights = [layers.w for layers in self.layers]
+                biases = [layers.b for layers in self.layers]
+                output = "weights: " + str(weights) + "\nbiases: " + str(biases)
+                f.write(output)
+                f.close()
+                print(output)
         plt.show()
 
     # def predict(self, input):
